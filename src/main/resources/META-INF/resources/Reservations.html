@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://bootswatch.com/4/lux/bootstrap.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coco Airline - Liste des réservations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('pictures/clouds.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .content-wrapper {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            text-align: center;
+            position: relative;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            background-color: #343a40;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #495057;
+            color: #fff; /* Set text color to white */
+        }
+
+        th {
+            background-color: #212529;
+            color: #dee2e6;
+        }
+
+        .back-button {
+            margin-top: 20px;
+
+        }
+
+        .back-button a {
+            text-decoration: none;
+            background-color: #000000;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .back-button a:hover {
+            background-color: #207bd2;
+        }
+
+        .form-wrapper {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        form {
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        form input, form select {
+            padding: 5px;
+            margin-right: 5px;
+        }
+
+        button {
+            background-color: #000000;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button.delete-button {
+            background-color: #000000;
+        }
+
+        button.delete-button:hover {
+            background-color: #d32f2f;
+        }
+
+        .logo {
+            top: -60px;
+            left: -400px;
+            width: 400px; /* Adjust the width to make it larger */
+            height: 150px; /* Adjust the height to make it larger */
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+<div class="content-wrapper">
+    <a href="index.html">
+    </a>
+    <h1>Double V Airlines - Reservations List</h1>
+    <div class="form-wrapper">
+        <form id="addReservationForm">
+            <input type="number" id="flightId" placeholder="ID du vol" required>
+            <select id="passengerId" required>
+                <!-- La liste déroulante des passagers sera chargée dynamiquement lors du chargement de la page -->
+            </select>
+            <button type="button" onclick="addReservation()">Ajouter</button>
+        </form>
+    </div>
+    <table id="reservationTable">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>ID du vol</th>
+            <th>Nom et prénom du passager</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <div class="back-button">
+        <a href="index.html">Retour à l'accueil</a>
+    </div>
+</div>
+
+<script>
+    function addReservation() {
+        const flightId = document.getElementById('flightId').value;
+        const passengerId = document.getElementById('passengerId').value;
+
+        const payload = {
+            flight_id: {
+                id: parseInt(flightId)
+            },
+            passenger_id: {
+                id: parseInt(passengerId)
+            }
+        };
+
+        fetch('http://localhost:8080/reservations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        })
+            .then(response => {
+                if (response.ok) {
+                    refreshTable();
+                } else {
+                    throw new Error('Erreur lors de l\'ajout de la réservation.');
+                }
+            })
+            .catch(error => console.error('Erreur lors de l\'ajout de la réservation :', error));
+    }
+
+    function deleteReservation(id) {
+        fetch(`http://localhost:8080/reservations/${id}`, {
+            method: 'DELETE',
+        })
+            .then(response => {
+                if (response.ok) {
+                    refreshTable();
+                } else {
+                    throw new Error('Erreur lors de la suppression de la réservation.');
+                }
+            })
+            .catch(error => console.error('Erreur lors de la suppression de la réservation :', error));
+    }
+
+    function refreshTable() {
+        fetch('http://localhost:8080/reservations')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('reservationTable').getElementsByTagName('tbody')[0];
+                tableBody.innerHTML = '';
+                data.forEach(reservation => {
+                    const row = tableBody.insertRow(-1);
+                    const cell1 = row.insertCell(0);
+                    const cell2 = row.insertCell(1);
+                    const cell3 = row.insertCell(2);
+                    const cell4 = row.insertCell(3);
+                    cell1.innerHTML = reservation.id;
+                    cell2.innerHTML = reservation.flight_id.id;
+                    cell3.innerHTML = reservation.passenger_id.surname + ' ' + reservation.passenger_id.firstname;
+                    cell4.innerHTML = `<button class="delete-button" onclick="deleteReservation(${reservation.id})">Supprimer</button>`;
+                });
+            })
+            .catch(error => console.error('Erreur lors de la récupération des données:', error));
+    }
+
+    function populatePassengerDropdown() {
+        const passengerDropdown = document.getElementById('passengerId');
+        fetch('http://localhost:8080/passengers')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(passager => {
+                    const option = document.createElement('option');
+                    option.value = passager.id;
+                    option.textContent = passager.surname + ' ' + passager.firstname;
+                    passengerDropdown.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Erreur lors du chargement des passagers:', error));
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        refreshTable();
+        populatePassengerDropdown();
+    });
+</script>
+
+</body>
+
+</html>

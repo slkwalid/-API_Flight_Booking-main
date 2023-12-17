@@ -16,27 +16,26 @@ import lombok.Setter;
 @NoArgsConstructor
 @Table(name = "planes")
 public class Avion extends PanacheEntityBase {
-
     @Id
     @SequenceGenerator(name = "planes_sequence_in_java_code", sequenceName = "planes_sequence_in_database", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "planes_sequence_in_java_code")
-    private Long id;
+    private Long id; //Plane's id
 
-    @NotBlank(message = "La compagnie ne peut pas être nulle !")
+    @NotBlank(message = "Operator can't be null")
     @Column(nullable = false)
-    private String operator; //Compagnie de l'avion !
+    private String operator; //Plane's operator
 
-    @NotBlank(message = "Le modèle de l'avion ne peut pas être nul !")
+    @NotBlank(message = "Model can't be null")
     @Column(nullable = false)
-    private String model; //Modèle de l'avion !
+    private String model; //Plane's model
 
-    @NotBlank(message = "L'immatriculation de l'avion ne peut pas être nulle !")
-    @Size(max = 6, message = "L'immatriculation à un maximum de 6 caractères !")
+    @NotBlank(message = "Registration can't be null")
+    @Size(max = 6, message = "Registration has a maximum of 6 characters")
     @Column(nullable = false, unique = true)
-    private String registration; //Immatriculation !
+    private String registration; //Plane's registration
 
-    @NotNull(message = "La capacité ne peut pas être nulle !")
+    @NotNull(message = "Capacity can't be null")
     @Column(nullable = false)
-    @Min(value = 6, message = "La capacité doit être au minimum de 6 !")
-    private Integer capacity; //Capacité de l'avion !
+    @Min(value = 6, message = "Capacity is a maximum of 6")
+    private Integer capacity; //Plane's capacity
 }

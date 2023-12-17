@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://bootswatch.com/4/lux/bootstrap.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            padding: 20px;
+        }
+
+        h1 {
+            color: #375a7f;
+        }
+
+        h2 {
+            color: #28a745;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            background-color: #343a40;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #495057;
+            color: #fff; /* Set text color to white */
+        }
+
+        th {
+            background-color: #212529;
+            color: #dee2e6;
+        }
+
+        tbody tr:hover {
+            background-color: #495057;
+        }
+
+        .back-button {
+            margin-top: 20px;
+
+        }
+
+        .back-button a {
+            text-decoration: none;
+            background-color: #000000;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .back-button a:hover {
+            background-color: #207bd2;
+        }
+
+        input[type="text"] {
+            margin-bottom: 10px;
+        }
+
+        .search-button {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Passengers</h1>
+
+<!-- Search Bars -->
+<input type="text" id="idInput" placeholder="Search by ID...">
+<input type="text" id="surnameInput" placeholder="Search by Surname...">
+<input type="text" id="firstnameInput" placeholder="Search by First Name...">
+<input type="text" id="emailInput" placeholder="Search by e-mail address...">
+
+<button class="btn btn-primary search-button" onclick="searchTable()">Search</button>
+
+<!-- Passenger Table -->
+<table class="table">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Surname</th>
+        <th>Firstname</th>
+        <th>Email Address</th>
+    </tr>
+    </thead>
+    <tbody id="passagersTableBody"></tbody>
+</table>
+<div class="back-button">
+    <a href="index.html">Retour à l'accueil</a>
+</div>
+
+<!-- JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Fetch data for passengers
+        getPassengers();
+    });
+
+    function getPassengers() {
+        fetch('http://localhost:8080/passengers')
+            .then(response => response.json())
+            .then(data => updateTable('passagersTableBody', data));
+    }
+
+    function updateTable(tableId, data) {
+        const tableBody = document.getElementById(tableId);
+
+        // Clear existing rows
+        tableBody.innerHTML = '';
+
+        data.forEach(item => {
+            const row = document.createElement('tr');
+            Object.values(item).forEach(value => {
+                const cell = document.createElement('td');
+                cell.textContent = value;
+                row.appendChild(cell);
+            });
+            tableBody.appendChild(row);
+        });
+    }
+
+    function searchTable() {
+        const idInput = document.getElementById('idInput').value.toLowerCase();
+        const surnameInput = document.getElementById('surnameInput').value.toLowerCase();
+        const firstnameInput = document.getElementById('firstnameInput').value.toLowerCase();
+        const emailInput = document.getElementById('emailInput').value.toLowerCase();
+
+        const rows = document.getElementById('passagersTableBody').getElementsByTagName('tr');
+
+        for (let i = 0; i < rows.length; i++) {
+            const id = rows[i].getElementsByTagName('td')[0].textContent.toLowerCase();
+            const surname = rows[i].getElementsByTagName('td')[1].textContent.toLowerCase();
+            const firstname = rows[i].getElementsByTagName('td')[2].textContent.toLowerCase();
+            const email = rows[i].getElementsByTagName('td')[3].textContent.toLowerCase();
+
+            if (
+                id.includes(idInput) &&
+                surname.includes(surnameInput) &&
+                firstname.includes(firstnameInput) &&
+                email.includes(emailInput)
+            ) {
+                rows[i].style.display = '';
+            } else {
+                rows[i].style.display = 'none';
+            }
+        }
+    }
+</script>
+
+</body>
+
+</html>

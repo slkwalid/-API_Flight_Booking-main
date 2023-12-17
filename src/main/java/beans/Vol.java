@@ -7,8 +7,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.sql.Time;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 
 @Entity
 @Getter
@@ -16,41 +17,41 @@ import java.util.Date;
 @NoArgsConstructor
 @Table(name = "flights")
 public class Vol extends PanacheEntityBase {
-
     @Id
-    @SequenceGenerator(name = "vols_sequence_in_java_code", sequenceName = "vols_sequence_in_database", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "vols_sequence_in_java_code")
-    private Long id;
+    @SequenceGenerator(name = "flights_sequence_in_java_code", sequenceName = "flights_sequence_in_database", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "flights_sequence_in_java_code")
+    private Long id; //Flight's id
 
-    @NotNull(message = "Le numéro du vol ne peut pas être nul !")
-    @Column(nullable = false)
-    private Integer number;
+    @NotBlank(message = "Flight number can't be null")
+    @Column(nullable = false, unique = true)
+    private String number; //Flight's number
 
-    @NotBlank(message = "Le numéro du vol ne peut pas être nul !")
+    @NotBlank(message = "Flight's origin can't be null")
     @Column(nullable = false)
-    private String origin;
+    private String origin; //Flight's origin place
 
-    @NotBlank(message = "La destination du vol ne peut pas être nulle !")
+    @NotBlank(message = "Flight's destination can't be null")
     @Column(nullable = false)
-    private String destination;
+    private String destination; //Flight's destination
 
-    @NotBlank(message = "La date de départ du vol ne peut pas être nulle !")
+    @NotNull(message = "Flight's departure date can't be null")
     @Column(nullable = false)
-    private Date departure_date;
+    private LocalDate departure_date; //Flight's departure date
 
-    @NotBlank(message = "L'heure de départ du vol ne peut pas être nulle !")
+    @NotNull(message = "Flight's departure time can't be null")
     @Column(nullable = false)
-    private Time departure_time;
+    private LocalTime departure_time; //Flight's departure time
 
-    @NotBlank(message = "La date d'arrivée du vol ne peut pas être nulle !")
+    @NotNull(message = "Flight arrival date can't be null")
     @Column(nullable = false)
-    private Date arrival_date;
+    private LocalDate arrival_date; //Flight's arrival date
 
-    @NotBlank(message = "L'heure d'arrivée du vol ne peut pas être nulle !")
+    @NotNull(message = "Flight's arrival_time can't be null")
     @Column(nullable = false)
-    private Time arrival_time;
+    private LocalTime arrival_time; //Flight's arrival time
 
-    @Id //A faire !
-    @Column(nullable = false)
-    private Integer plane_id;
+    @NotNull(message="Plane's id can't be null")
+    @ManyToOne
+    @JoinColumn(name = "plane_id", nullable = false)
+    private Avion plane_id; //Plane's id
 }

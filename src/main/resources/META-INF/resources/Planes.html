@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://bootswatch.com/4/lux/bootstrap.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avions</title>
+    <style>
+        body {
+            padding: 20px;
+        }
+
+        h1 {
+            color: #375a7f;
+        }
+
+        h2 {
+            color: #28a745;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            background-color: #343a40;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #495057;
+            color: #fff; /* Set text color to white */
+        }
+
+        th {
+            background-color: #212529;
+            color: #dee2e6;
+        }
+
+        .back-button {
+            margin-top: 20px;
+
+        }
+
+        .back-button a {
+            text-decoration: none;
+            background-color: #000000;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .back-button a:hover {
+            background-color: #207bd2;
+        }
+
+        tbody tr:hover {
+            background-color: #495057;
+        }
+
+        input[type="text"] {
+            margin-bottom: 10px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: baseline;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            margin-right: 10px;
+            background-color: #495057;
+            color: #adb5bd;
+        }
+
+        .search-button {
+            background-color: #007bff;
+            border: none;
+            color: #ffffff;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<h1>Avions</h1>
+
+<!-- Search Bar -->
+<div class="search-bar">
+    <input type="text" class="form-control search-input" id="searchOperator" placeholder="Search by Operator" oninput="searchAvions()">
+    <input type="text" class="form-control search-input" id="searchModel" placeholder="Search by Model" oninput="searchAvions()">
+    <input type="text" class="form-control search-input" id="searchRegistration" placeholder="Search by Registration" oninput="searchAvions()">
+    <input type="text" class="form-control search-input" id="searchCapacity" placeholder="Search by Capacity" oninput="searchAvions()">
+    <button class="btn btn-primary search-button" onclick="searchAvions()">Search</button>
+
+</div>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Operator</th>
+        <th>Model</th>
+        <th>Registration</th>
+        <th>Capacity</th>
+    </tr>
+    </thead>
+    <tbody id="avionsTableBody"></tbody>
+</table>
+<div class="back-button">
+    <a href="index.html">Retour à l'accueil</a>
+</div>
+
+
+<!-- JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Fetch data for airplanes
+        getAvions();
+    });
+
+    function getAvions() {
+        fetch('http://localhost:8080/planes')
+            .then(response => response.json())
+            .then(data => updateTable('avionsTableBody', data));
+    }
+
+    function updateTable(tableId, data) {
+        const tableBody = document.getElementById(tableId);
+
+        // Clear existing rows
+        tableBody.innerHTML = '';
+
+        data.forEach(item => {
+            const row = document.createElement('tr');
+            Object.values(item).forEach(value => {
+                const cell = document.createElement('td');
+                // Check if the value is an object, if so, stringify it
+                cell.textContent = typeof value === 'object' ? JSON.stringify(value) : value;
+                row.appendChild(cell);
+            });
+            tableBody.appendChild(row);
+        });
+    }
+
+    // Real-time Search Triggered as You Type
+    function searchAvions() {
+        const searchParams = {
+            operator: document.getElementById('searchOperator').value,
+            model: document.getElementById('searchModel').value,
+            registration: document.getElementById('searchRegistration').value,
+            capacity: document.getElementById('searchCapacity').value
+        };
+
+        // Construct the API URL with search parameters
+        const apiUrl = constructApiUrl('http://localhost:8080/planes', searchParams);
+
+        // Fetch and populate the table with search results
+        getAvionsWithSearchParams(apiUrl);
+    }
+
+    // Helper function to construct API URL with search parameters
+    function constructApiUrl(baseApiUrl, searchParams) {
+        const searchParamsString = new URLSearchParams(searchParams).toString();
+        return `${baseApiUrl}?${searchParamsString}`;
+    }
+
+    // Fetch data with search parameters and update table
+    function getAvionsWithSearchParams(apiUrl) {
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => updateTable('avionsTableBody', data))
+            .catch(error => console.error('Fetch error:', error));
+    }
+</script>
+
+</body>
+
+</html>
